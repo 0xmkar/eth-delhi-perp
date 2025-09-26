@@ -5,11 +5,13 @@ import "forge-std/Test.sol";
 import "../src/PerpMarket.sol";
 import "../src/MarginVault.sol";
 import "../src/Treasury.sol";
+import "../src/vAMM.sol";
 
 contract PerpMarketTest is Test {
     PerpMarket public perpMarket;
     MarginVault public marginVault;
     Treasury public treasury;
+    vAMM public vammContract;
     
     address public owner = address(0x1);
     address public user1 = address(0x2);
@@ -28,16 +30,29 @@ contract PerpMarketTest is Test {
         marginVault = new MarginVault(owner);
         treasury = new Treasury(feeRecipient, owner);
         
+        // Deploy vAMM with initial reserves
+        uint256 initialBaseReserve = 1000 * 10**18; // 1000 virtual BTC
+        uint256 initialQuoteReserve = 50000000 * 10**18; // 50M virtual USDC
+        bytes32 btcDataFeedId = bytes32("BTC");
+        
+        vammContract = new vAMM(
+            initialBaseReserve,
+            initialQuoteReserve,
+            btcDataFeedId,
+            owner
+        );
+        
         perpMarket = new PerpMarket(
             marginVault,
             treasury,
-            INITIAL_PRICE,
+            vammContract,
             owner
         );
         
         // Set up authorizations
         marginVault.setAuthorizedContract(address(perpMarket), true);
         treasury.setAuthorizedContract(address(perpMarket), true);
+        vammContract.addAuthorizedCaller(address(perpMarket));
         
         vm.stopPrank();
         
@@ -123,10 +138,9 @@ contract PerpMarketTest is Test {
         perpMarket.openPosition{value: totalRequired}(true, POSITION_SIZE);
         vm.stopPrank();
         
-        // Update price upward for profit
-        uint256 newPrice = 55000 * 10**18; // $55,000
+        // Update funding rate (price comes from oracle now)
         vm.prank(owner);
-        perpMarket.updateMarkPrice(newPrice);
+        perpMarket.updateFundingRate();
         
         // Check PnL
         int256 pnl = perpMarket.getCurrentPnL(user1);
@@ -156,10 +170,9 @@ contract PerpMarketTest is Test {
         perpMarket.openPosition{value: totalRequired}(true, POSITION_SIZE);
         vm.stopPrank();
         
-        // Update price downward for loss
-        uint256 newPrice = 45000 * 10**18; // $45,000
+        // Update funding rate (price comes from oracle now)
         vm.prank(owner);
-        perpMarket.updateMarkPrice(newPrice);
+        perpMarket.updateFundingRate();
         
         // Check PnL
         int256 pnl = perpMarket.getCurrentPnL(user1);
@@ -187,9 +200,9 @@ contract PerpMarketTest is Test {
         vm.stopPrank();
         
         // Update price downward for profit on short
-        uint256 newPrice = 45000 * 10**18; // $45,000
+        // uint256 newPrice = 45000 * 10**18; // $45,000
         vm.prank(owner);
-        perpMarket.updateMarkPrice(newPrice);
+        perpMarket.updateFundingRate();
         
         // Check PnL
         int256 pnl = perpMarket.getCurrentPnL(user1);
@@ -218,9 +231,9 @@ contract PerpMarketTest is Test {
         console.log("totalRequired", totalRequired);
         
         // Move price significantly down to trigger liquidation
-        uint256 newPrice = 35000 * 10**18; // $35,000 - significant drop
+        // uint256 newPrice = 35000 * 10**18; // $35,000 - significant drop
         vm.prank(owner);
-        perpMarket.updateMarkPrice(newPrice);
+        perpMarket.updateFundingRate();
         
         // Check if position is liquidatable
         assertTrue(perpMarket.isLiquidatable(user1));
@@ -235,14 +248,14 @@ contract PerpMarketTest is Test {
         assertEq(pos.size, 0);
     }
 
-    function test_Update_MarkPrice() public {
-        uint256 newPrice = 60000 * 10**18; // $60,000
-        
+    function test_Update_FundingRate() public {
+        // Check that we can update funding rate
         vm.prank(owner);
-        perpMarket.updateMarkPrice(newPrice);
+        perpMarket.updateFundingRate();
         
-        assertEq(perpMarket.getMarkPrice(), newPrice);
-        assertEq(perpMarket.markPrice(), newPrice);
+        // Verify mark price is available from vAMM
+        uint256 markPrice = perpMarket.getMarkPrice();
+        assertGt(markPrice, 0);
     }
 
     function test_RevertWhen_Open_Position_When_Paused() public {
@@ -424,18 +437,18 @@ contract PerpMarketTest is Test {
         vm.stopPrank();
         
         // Test profit scenario
-        uint256 higherPrice = 55000 * 10**18; // $55,000
+        // uint256 higherPrice = 55000 * 10**18; // $55,000
         vm.prank(owner);
-        perpMarket.updateMarkPrice(higherPrice);
+        perpMarket.updateFundingRate();
         
         int256 pnl = perpMarket.getCurrentPnL(user1);
         // PnL should be positive for long position when price increases
         assertTrue(pnl > 0);
         
         // Test loss scenario
-        uint256 lowerPrice = 45000 * 10**18; // $45,000
+        // uint256 lowerPrice = 45000 * 10**18; // $45,000
         vm.prank(owner);
-        perpMarket.updateMarkPrice(lowerPrice);
+        perpMarket.updateFundingRate();
         
         pnl = perpMarket.getCurrentPnL(user1);
         // PnL should be negative for long position when price decreases

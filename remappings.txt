@@ -1,2 +1,3 @@
 forge-std/=lib/forge-std/src/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
+@redstone-finance/evm-connector/contracts/=lib/redstone-oracles-monorepo/packages/evm-connector/contracts/

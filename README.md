@@ -276,10 +276,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## ⚠️ Disclaimer
 
 This is experimental software. Use at your own risk. Not audited for production use.
-
 ## 📞 Support
 
 For questions and support:
 - Open an issue on GitHub
 - Join our Discord community
 - Check documentation at [docs.derivative-dex.io](https://docs.derivative-dex.io)
+

@@ -5,8 +5,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@redstone-finance/evm-connector/contracts/data-services/MainDemoConsumerBase.sol";
 import "./MarginVault.sol";
 import "./Treasury.sol";
+import "./interfaces/IvAMM.sol";
 
 /**
  * @title PerpMarket
@@ -14,7 +16,7 @@ import "./Treasury.sol";
  * Manages positions, margin requirements, PnL calculations, and liquidations
  * Uses in-house mark pricing instead of external oracles
  */
-contract PerpMarket is Ownable, ReentrancyGuard {
+contract PerpMarket is Ownable, ReentrancyGuard, MainDemoConsumerBase {
     using SafeERC20 for IERC20;
 
     // Position struct
@@ -65,10 +67,10 @@ contract PerpMarket is Ownable, ReentrancyGuard {
     // State variables
     MarginVault public immutable marginVault;
     Treasury public immutable treasury;
+    IvAMM public immutable vamm;
 
-    // In-house mark pricing
-    uint256 public markPrice; // Current mark price (18 decimals)
-    uint256 public lastPriceUpdate; // Timestamp of last price update
+    // Position tracking for funding
+    mapping(address => uint256) public lastFundingIndex;
 
     // User positions
     mapping(address => Position) public positions;
@@ -121,37 +123,37 @@ contract PerpMarket is Ownable, ReentrancyGuard {
     constructor(
         MarginVault _marginVault,
         Treasury _treasury,
-        uint256 _initialMarkPrice,
+        IvAMM _vamm,
         address _owner
     ) Ownable(_owner) {
-        if (address(_marginVault) == address(0) || address(_treasury) == address(0)) revert ZeroAddress();
-        if (_initialMarkPrice == 0) revert InvalidPrice();
+        if (address(_marginVault) == address(0) || address(_treasury) == address(0) || address(_vamm) == address(0)) revert ZeroAddress();
             
         marginVault = _marginVault;
         treasury = _treasury;
-        markPrice = _initialMarkPrice;
-        lastPriceUpdate = block.timestamp;
+        vamm = _vamm;
     }
 
     /**
-     * @dev Update the mark price (only owner)
-     * @param newPrice New mark price in 18 decimals
+     * @dev Update funding rate in vAMM (anyone can call)
      */
-    function updateMarkPrice(uint256 newPrice) external onlyOwner {
-        if (newPrice == 0) revert InvalidPrice();
-        
-        markPrice = newPrice;
-        lastPriceUpdate = block.timestamp;
-        
-        emit MarkPriceUpdated(newPrice, block.timestamp);
+    function updateFundingRate() external {
+        vamm.updateFundingRate();
     }
 
     /**
-     * @dev Get current mark price
+     * @dev Get current mark price from vAMM
      * @return Current mark price in 18 decimals
      */
     function getMarkPrice() external view returns (uint256) {
-        return markPrice;
+        return vamm.getMarkPrice();
+    }
+
+    /**
+     * @dev Get oracle price from vAMM
+     * @return Current oracle price in 18 decimals
+     */
+    function getOraclePrice() external view returns (uint256) {
+        return vamm.getOraclePrice();
     }
 
     /**
@@ -165,16 +167,16 @@ contract PerpMarket is Ownable, ReentrancyGuard {
     ) external payable nonReentrant whenNotPaused noPosition(msg.sender) {
         if (size == 0) revert ZeroAmount();
         
-        // Use current mark price
-        uint256 currentPrice = markPrice;
-        if (currentPrice == 0) revert InvalidPrice();
-        
         // Calculate required margin based on initial margin requirement
         uint256 requiredMargin = (size * initialMarginBps) / BPS_DIVISOR;
         
         // Calculate leverage
         uint256 leverage = (size * PRECISION) / requiredMargin;
         if (leverage > MAX_LEVERAGE * PRECISION) revert InvalidLeverage();
+        
+        // Execute trade on vAMM to get the actual entry price
+        IvAMM.SwapOutput memory swapResult = vamm.swapInput(isLong, size);
+        uint256 currentPrice = swapResult.markPrice;
         
         // Calculate trading fee
         uint256 tradingFee = (size * tradingFeeBps) / BPS_DIVISOR;
@@ -202,16 +204,21 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         }
         totalVolume += size;
         
-        // Create position
+        // Create position with actual size from vAMM
+        uint256 actualPositionSize = swapResult.outputAmount;
         positions[msg.sender] = Position({
-            size: size,
+            size: actualPositionSize,
             entryPrice: currentPrice,
             margin: requiredMargin,
             isLong: isLong,
             timestamp: block.timestamp
         });
         
-        emit PositionOpened(msg.sender, isLong, size, currentPrice, requiredMargin, leverage / PRECISION);
+        // Initialize funding tracking
+        IvAMM.vAMMState memory vammState = vamm.getState();
+        lastFundingIndex[msg.sender] = vammState.lastFundingUpdate;
+        
+        emit PositionOpened(msg.sender, isLong, actualPositionSize, currentPrice, requiredMargin, leverage / PRECISION);
         emit FeeCharged(msg.sender, tradingFee);
     }
 
@@ -221,18 +228,29 @@ contract PerpMarket is Ownable, ReentrancyGuard {
     function closePosition() external nonReentrant hasPosition(msg.sender) {
         Position memory pos = positions[msg.sender];
         
-        // Get current price
-        uint256 currentPrice = markPrice;
-        if (currentPrice == 0) revert InvalidPrice();
+        // Execute close trade on vAMM
+        IvAMM.SwapOutput memory swapResult = vamm.swapOutput(pos.isLong, pos.size);
+        uint256 currentPrice = swapResult.markPrice;
         
-        // Calculate PnL
+        // Calculate PnL from vAMM trade
         int256 pnl = _calculatePnL(pos, currentPrice);
+        
+        // Calculate funding payment
+        int256 fundingPayment = vamm.calculateFundingPayment(
+            msg.sender,
+            pos.size,
+            pos.isLong,
+            lastFundingIndex[msg.sender]
+        );
         
         // Calculate trading fee for closing
         uint256 tradingFee = (pos.size * tradingFeeBps) / BPS_DIVISOR;
         
+        // Total PnL includes funding payment
+        int256 totalPnL = pnl + fundingPayment;
+        
         // Settle position
-        uint256 marginReturned = _settlePosition(msg.sender, pos, pnl, tradingFee);
+        uint256 marginReturned = _settlePosition(msg.sender, pos, totalPnL, tradingFee);
         
         // Update global state  
         if (pos.isLong) {
@@ -242,10 +260,11 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         }
         totalVolume += pos.size;
         
-        // Clear position
+        // Clear position and funding tracking
         delete positions[msg.sender];
+        delete lastFundingIndex[msg.sender];
         
-        emit PositionClosed(msg.sender, currentPrice, pnl, marginReturned);
+        emit PositionClosed(msg.sender, currentPrice, totalPnL, marginReturned);
         emit FeeCharged(msg.sender, tradingFee);
     }
 
@@ -260,9 +279,9 @@ contract PerpMarket is Ownable, ReentrancyGuard {
     {
         Position memory pos = positions[user];
         
-        // Get current price
-        uint256 currentPrice = markPrice;
-        if (currentPrice == 0) revert InvalidPrice();
+        // Execute close trade on vAMM for liquidation
+        IvAMM.SwapOutput memory swapResult = vamm.swapOutput(pos.isLong, pos.size);
+        uint256 currentPrice = swapResult.markPrice;
         
         // Check if position is liquidatable
         if (!_isLiquidatable(pos, currentPrice)) revert PositionNotLiquidatable();
@@ -270,11 +289,22 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         // Calculate PnL
         int256 pnl = _calculatePnL(pos, currentPrice);
         
+        // Calculate funding payment
+        int256 fundingPayment = vamm.calculateFundingPayment(
+            user,
+            pos.size,
+            pos.isLong,
+            lastFundingIndex[user]
+        );
+        
+        // Total PnL includes funding payment
+        int256 totalPnL = pnl + fundingPayment;
+        
         // Calculate liquidation reward
         uint256 liquidationReward = (pos.margin * liquidationRewardBps) / BPS_DIVISOR;
         
         // Settle position (no trading fee for liquidation)
-        _settlePosition(user, pos, pnl, 0);
+        _settlePosition(user, pos, totalPnL, 0);
         
         // Pay liquidation reward to liquidator
         marginVault.transferBalance(user, msg.sender, liquidationReward);
@@ -286,10 +316,11 @@ contract PerpMarket is Ownable, ReentrancyGuard {
             totalShortSize -= pos.size;
         }
         
-        // Clear position
+        // Clear position and funding tracking
         delete positions[user];
+        delete lastFundingIndex[user];
         
-        emit PositionLiquidated(user, msg.sender, currentPrice, pnl, liquidationReward);
+        emit PositionLiquidated(user, msg.sender, currentPrice, totalPnL, liquidationReward);
     }
 
     /**
@@ -406,7 +437,7 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         Position memory pos = positions[user];
         if (pos.size == 0) return 0;
         
-        uint256 currentPrice = markPrice;
+        uint256 currentPrice = vamm.getMarkPrice();
         return _calculatePnL(pos, currentPrice);
     }
 
@@ -419,7 +450,7 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         Position memory pos = positions[user];
         if (pos.size == 0) return 0;
         
-        uint256 currentPrice = markPrice;
+        uint256 currentPrice = vamm.getMarkPrice();
         int256 pnl = _calculatePnL(pos, currentPrice);
         int256 currentMarginValue = int256(pos.margin) + pnl;
         
@@ -436,7 +467,7 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         Position memory pos = positions[user];
         if (pos.size == 0) return false;
         
-        uint256 currentPrice = markPrice;
+        uint256 currentPrice = vamm.getMarkPrice();
         return _isLiquidatable(pos, currentPrice);
     }
 
@@ -453,7 +484,7 @@ contract PerpMarket is Ownable, ReentrancyGuard {
         uint256 volume,
         uint256 currentPrice
     ) {
-        return (totalLongSize, totalShortSize, totalVolume, markPrice);
+        return (totalLongSize, totalShortSize, totalVolume, vamm.getMarkPrice());
     }
 
     // Admin functions
@@ -505,7 +536,7 @@ contract PerpMarket is Ownable, ReentrancyGuard {
      */
     function emergencyClosePosition(address user) external onlyOwner hasPosition(user) {
         Position memory pos = positions[user];
-        uint256 currentPrice = markPrice;
+        uint256 currentPrice = vamm.getMarkPrice();
         int256 pnl = _calculatePnL(pos, currentPrice);
         
         // Settle without trading fee in emergency
