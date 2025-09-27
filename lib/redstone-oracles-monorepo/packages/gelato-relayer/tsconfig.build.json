@@ -1,0 +1,9 @@
+{
+  "extends": ["./tsconfig.json", "../../tsconfig-build-common.json"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "**/*.json"],
+  "references": [
+    {
+      "path": "../on-chain-relayer/tsconfig.build.json"
+    }
+  ]
+}

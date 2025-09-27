@@ -1,0 +1,6 @@
+**/target
+
+**/.soroban
+**/.stellar
+
+**/*.custom

@@ -1,0 +1,12 @@
+{
+  "extends": ["./tsconfig.json", "../../tsconfig-build-common.json"],
+  "exclude": ["dist"],
+  "references": [
+    {
+      "path": "../utils/tsconfig.build.json"
+    },
+    {
+      "path": "../protocol/tsconfig.build.json"
+    }
+  ]
+}

@@ -1,0 +1,641 @@
+{
+  "interval": 10000,
+  "priceAggregator": "median",
+  "defaultSource": ["coingecko"],
+  "sourceTimeout": 7000,
+  "minValidSourcesPercentage": 1,
+  "deviationCheck": {
+    "deviationWithRecentValues": {
+      "maxPercent": 30,
+      "maxDelayMilliseconds": 120000
+    }
+  },
+  "tokens": {
+    "ETH": {
+      "source": [
+        "binance-usdt",
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitrue-usdt",
+        "bitstamp-usd",
+        "coinbase-usd",
+        "gate-usdt",
+        "kaiko-v2",
+        "kraken-usd",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "USDT": {
+      "source": [
+        "bitstamp-usd",
+        "coinbase-usd",
+        "coingecko",
+        "coinmarketcap",
+        "gemini-usd",
+        "kraken-usd",
+        "okx-usd"
+      ],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "EUR": {
+      "source": [
+        "binance-usdt",
+        "bitstamp-usd",
+        "kaiko-v2",
+        "kraken-usd",
+        "coinbase-btc-reversed",
+        "bitstamp-btc-reversed",
+        "kraken-usdt-reversed",
+        "binance-usdc",
+        "bitget-usdt-reversed",
+        "okx-btc-reversed"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "PNG": {
+      "source": ["coingecko", "coinmarketcap", "gate-usdt"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "AVAX": {
+      "source": [
+        "binance-usdt",
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitstamp-usd",
+        "coinbase-usd",
+        "gate-usdt",
+        "kaiko-v2",
+        "kraken-eur",
+        "kraken-usd",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "LINK": {
+      "source": [
+        "binance-usdc",
+        "binance-usdt",
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitstamp-usd",
+        "coinbase-usd",
+        "gate-usdt",
+        "kraken-usd",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdt",
+        "uniswap-v3-ethereum-weth-3000",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "BTC": {
+      "source": [
+        "binance-usdc",
+        "binance-usdt",
+        "bingx-usdc",
+        "bingx-usdt",
+        "bitget-usdc",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitrue-usdc",
+        "bitrue-usdt",
+        "bitstamp-usd",
+        "bybit-usdc",
+        "bybit-usdt",
+        "coinbase-usd",
+        "gate-usdt",
+        "gemini-usd",
+        "kaiko-v2",
+        "kraken-usd",
+        "kraken-usdc",
+        "kraken-usdt",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usd",
+        "okx-usdc",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "QI": {
+      "source": ["binance-usdt", "bitrue-usdt", "kucoin-usdt", "lbank-usdt", "xt"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "USDC": {
+      "source": [
+        "balancer-ethereum-usdt",
+        "binance-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitrue-usdt",
+        "bitstamp-usd",
+        "coingecko",
+        "coinmarketcap",
+        "curve-ethereum-dai",
+        "curve-ethereum-usdt",
+        "gemini-usd",
+        "kraken-usdt",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "okx-usdt",
+        "uniswap-v3-ethereum-dai-100"
+      ],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "sAVAX": {
+      "source": ["avalanche-evm-fetcher-oracle-adapter"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "YY_AAVE_AVAX": {
+      "source": ["avalanche-evm-fetcher-yield-yak"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "YY_PNG_AVAX_USDC_LP": {
+      "source": ["avalanche-evm-fetcher-yield-yak"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "YY_PNG_AVAX_ETH_LP": {
+      "source": ["avalanche-evm-fetcher-yield-yak"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "YY_GLP": {
+      "source": ["avalanche-evm-fetcher-yield-yak"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "PNG_AVAX_USDC_LP": {
+      "source": ["avalanche-evm-fetcher-dex-lp"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "PNG_AVAX_ETH_LP": {
+      "source": ["avalanche-evm-fetcher-dex-lp"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GMX": {
+      "source": [
+        "binance-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitrue-usdt",
+        "gate-usdt",
+        "kucoin-usdt",
+        "okx-usdt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GLP": {
+      "source": ["avalanche-evm-fetcher-glp-manager"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "JOE": {
+      "source": [
+        "binance-usdt",
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "gate-usdt",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "DAI": {
+      "source": [
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitrue-usdt",
+        "bybit-usdt",
+        "coingecko",
+        "coinmarketcap",
+        "curve-ethereum-usdt",
+        "gate-usdt",
+        "kraken-usd",
+        "kraken-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdt"
+      ],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "EUROC": {
+      "source": [
+        "coingecko",
+        "coinmarketcap",
+        "bitmart-usdt",
+        "uniswap-v3-ethereum-usdc-500",
+        "aerodrome-cl-base-usdc",
+        "aerodrome-cl-base-usdc-2",
+        "aerodrome-cl-base-weth",
+        "trader-joe-v2-avalanche-usdc",
+        "trader-joe-v2-avalanche-wavax"
+      ],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "SOL": {
+      "source": [
+        "binance-usdc",
+        "binance-usdt",
+        "bingx-usdc",
+        "bingx-usdt",
+        "bitget-usdc",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitstamp-usd",
+        "bybit-usdc",
+        "bybit-usdt",
+        "coinbase-usd",
+        "gate-usdt",
+        "gemini-usd",
+        "kraken-eur",
+        "kraken-usd",
+        "kraken-usdc",
+        "kraken-usdt",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "ggAVAX": {
+      "source": ["avalanche-evm-fetcher-oracle-adapter"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "yyAVAX": {
+      "source": ["avalanche-evm-fetcher-oracle-adapter"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_ETH_WETHe_USDC": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_BTC_BTCb_USDC": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_AVAX_WAVAX_USDC": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_SOL_SOL_USDC": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "BAL_ggAVAX_AVAX": {
+      "source": ["avalanche-evm-fetcher-balancer"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "BAL_yyAVAX_AVAX": {
+      "source": ["avalanche-evm-fetcher-balancer"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "BAL_sAVAX_AVAX": {
+      "source": ["avalanche-evm-fetcher-balancer"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "BAL": {
+      "source": [
+        "balancer-ethereum-weth",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "gate-usdt",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "okx-usdt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "WOMBAT_ggAVAX_AVAX_LP_AVAX": {
+      "source": ["avalanche-evm-fetcher-wombat"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "WOMBAT_ggAVAX_AVAX_LP_ggAVAX": {
+      "source": ["avalanche-evm-fetcher-wombat"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "WOMBAT_sAVAX_AVAX_LP_AVAX": {
+      "source": ["avalanche-evm-fetcher-wombat"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "WOMBAT_sAVAX_AVAX_LP_sAVAX": {
+      "source": ["avalanche-evm-fetcher-wombat"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_AVAX_WAVAX": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_BTC_BTCb": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "GM_ETH_WETHe": {
+      "source": ["avalanche-evm-fetcher-gmx"],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "FDUSD": {
+      "source": [
+        "binance-bnb-reversed",
+        "binance-btc-reversed",
+        "binance-eth-reversed",
+        "binance-sol-reversed",
+        "binance-usdc",
+        "binance-usdt",
+        "binance-xrp-reversed",
+        "bingx-usdt",
+        "coingecko",
+        "coinmarketcap",
+        "gate-usdt",
+        "mexc-usdt",
+        "pancake-swap-bnb-usdt-100",
+        "uniswap-v3-ethereum-usdt-100"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "BNB": {
+      "source": [
+        "binance-usdt",
+        "bingx-usdt",
+        "bingx-usdc",
+        "bitget-usdc",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "DOGE": {
+      "source": [
+        "binance-fdusd",
+        "binance-usdt",
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bybit-usdc",
+        "bybit-usdt",
+        "coinbase-usd",
+        "gate-usdt",
+        "kraken-usd",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdc",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "XRP": {
+      "source": [
+        "binance-usdc",
+        "binance-usdt",
+        "bingx-usdc",
+        "bingx-usdt",
+        "bitget-eur",
+        "bitget-usdc",
+        "bitget-usdt",
+        "bitmart-usdt",
+        "bitrue-usdt",
+        "bitstamp-eur",
+        "bitstamp-usd",
+        "bybit-usdt",
+        "coinbase-usd",
+        "gate-usdt",
+        "kraken-eur",
+        "kraken-usd",
+        "kraken-usdc",
+        "kraken-usdt",
+        "kucoin-usdt",
+        "lbank-usdc",
+        "lbank-usdt",
+        "mexc-usdt",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "LTC": {
+      "source": [
+        "binance-btc",
+        "binance-usdt",
+        "bitget-usdt",
+        "bybit-usdt",
+        "coinbase-usd",
+        "gate-usdt",
+        "kraken-eur",
+        "kraken-usd",
+        "kucoin-usdt",
+        "okx-usdt",
+        "xt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "FXS": {
+      "source": [
+        "binance-usdt",
+        "bingx-usdt",
+        "bitget-usdt",
+        "bitrue-usdt",
+        "kucoin-usdt",
+        "lbank-usdt",
+        "okx-usdt"
+      ],
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "3Crv": {
+      "source": ["ethereum-evm-fetcher-curve"],
+      "denomination": "USD",
+      "rateFeed": true
+    },
+    "sDAI": {
+      "source": ["ethereum-evm-fetcher-savings-dai"],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": true
+    },
+    "FRAX": {
+      "source": [
+        "curve-ethereum-3crv",
+        "curve-ethereum-sdai",
+        "curve-ethereum-usdc-multi-block",
+        "fraxswap-ethereum-fxs",
+        "fraxswap-ethereum-weth",
+        "uniswap-v3-ethereum-usdc-500",
+        "uniswap-v3-ethereum-dai-500"
+      ],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": false
+    },
+    "aUSD": {
+      "source": [
+        "blackhole-avalanche-usdc-75",
+        "bullish-btc-reversed",
+        "pharaoh-avalanche-usdc-50",
+        "trader-joe-v2-avalanche-wavax",
+        "trader-joe-v2-avalanche-usdc",
+        "trader-joe-v2-avalanche-usdt",
+        "uniswap-v4-ethereum-usdc-100"
+      ],
+      "deviationCheck": {
+        "deviationWithRecentValues": {
+          "maxPercent": 5,
+          "maxDelayMilliseconds": 120000
+        }
+      },
+      "denomination": "USD",
+      "rateFeed": false
+    }
+  },
+  "multiPointPackages": {
+    "___ALL_FEEDS___": [
+      "AVAX",
+      "BAL",
+      "BAL_ggAVAX_AVAX",
+      "BAL_sAVAX_AVAX",
+      "BAL_yyAVAX_AVAX",
+      "BTC",
+      "EUR",
+      "DAI",
+      "ETH",
+      "EUROC",
+      "GLP",
+      "GMX",
+      "GM_AVAX_WAVAX",
+      "GM_AVAX_WAVAX_USDC",
+      "GM_BTC_BTCb",
+      "GM_BTC_BTCb_USDC",
+      "GM_ETH_WETHe",
+      "GM_ETH_WETHe_USDC",
+      "GM_SOL_SOL_USDC",
+      "JOE",
+      "LINK",
+      "PNG",
+      "PNG_AVAX_ETH_LP",
+      "PNG_AVAX_USDC_LP",
+      "QI",
+      "SOL",
+      "USDC",
+      "USDT",
+      "WOMBAT_ggAVAX_AVAX_LP_AVAX",
+      "WOMBAT_ggAVAX_AVAX_LP_ggAVAX",
+      "WOMBAT_sAVAX_AVAX_LP_AVAX",
+      "WOMBAT_sAVAX_AVAX_LP_sAVAX",
+      "YY_AAVE_AVAX",
+      "YY_GLP",
+      "YY_PNG_AVAX_ETH_LP",
+      "YY_PNG_AVAX_USDC_LP",
+      "ggAVAX",
+      "sAVAX",
+      "yyAVAX",
+      "DOGE",
+      "XRP",
+      "LTC",
+      "FDUSD",
+      "BNB",
+      "aUSD",
+      "FXS",
+      "3Crv",
+      "sDAI",
+      "FRAX"
+    ]
+  }
+}

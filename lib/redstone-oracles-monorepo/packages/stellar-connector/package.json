@@ -1,0 +1,52 @@
+{
+  "name": "@redstone-finance/stellar-connector",
+  "version": "0.9.0",
+  "description": "A tool to inject RedStone data into Stellar compatible smart contracts",
+  "main": "dist/src/index.js",
+  "exports": "./dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "yarn global:ts-clean",
+    "build": "yarn global:tsc --build tsconfig.build.json",
+    "build-dev": "yarn global:tsc --build tsconfig.json",
+    "lint": "yarn global:eslint .",
+    "lint:fix": "yarn global:eslint --fix .",
+    "test": "make build && yarn global:jest:cov --runInBand",
+    "preversion": "yarn build",
+    "pack-package": "yarn build && cd dist && npm pack",
+    "convert-keys": "yarn global:ts-node scripts/convert-keys.ts",
+    "sample-run": "yarn global:ts-node scripts/sample-run.ts",
+    "sample-deploy": "yarn global:ts-node scripts/sample-deploy.ts",
+    "sample-upgrade": "yarn global:ts-node scripts/sample-upgrade.ts",
+    "sample-upgrade-tx": "yarn global:ts-node scripts/ledger/sample-upgrade-tx.ts",
+    "get-ledger-data": "yarn global:ts-node ./scripts/ledger/get-ledger-data.ts",
+    "create-multisig": "yarn global:ts-node ./scripts/ledger/create-multisig.ts",
+    "change-owner": "yarn global:ts-node scripts/change-owner.ts",
+    "change-owner-tx": "yarn global:ts-node scripts/ledger/change-owner-tx.ts",
+    "sign-tx": "yarn global:ts-node ./scripts/ledger/sign-tx.ts",
+    "combine-signatures": "yarn global:ts-node ./scripts/ledger/combine-signatures.ts",
+    "create-account": "yarn global:ts-node ./scripts/create-account-with-funds.ts"
+  },
+  "dependencies": {
+    "@redstone-finance/sdk": "workspace:*",
+    "@redstone-finance/utils": "workspace:*",
+    "@stellar/stellar-sdk": "14.1.0",
+    "lodash": "^4.17.21",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@ledgerhq/hw-app-str": "^7.2.5",
+    "@ledgerhq/hw-transport-node-hid-singleton": "^6.31.10",
+    "@types/urijs": "^1.19.25",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.2"
+  },
+  "files": [
+    "src",
+    "dist/src/**/*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

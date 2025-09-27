@@ -1,0 +1,29 @@
+{
+  "name": "@redstone-finance/on-chain-relayer-common",
+  "description": "This package cannot contain any node.js specific imports or dependencies",
+  "version": "0.9.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": "./dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "run-ts": "yarn global:ts-node",
+    "build": "yarn global:tsc --build tsconfig.build.json",
+    "build-dev": "yarn global:tsc --build tsconfig.json",
+    "clean": "yarn global:ts-clean",
+    "lint": "yarn global:eslint .",
+    "lint:fix": "yarn global:eslint --fix .",
+    "preversion": "yarn build"
+  },
+  "dependencies": {
+    "@redstone-finance/utils": "workspace:*",
+    "zod": "^3.22.4"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

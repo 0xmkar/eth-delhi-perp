@@ -1,0 +1,16 @@
+**/node_modules
+.git
+packages/starknet-connector/build
+**/dist
+**/.DS_Store
+**/docs
+Dockerfile
+**/*.log
+**/.vscode
+terraform
+**/healthcheck.txt.tmp
+**/healthcheck.txt
+**/*.tsbuildinfo
+packages/oracle-node/config_*
+packages/oracle-node/node-remote-config
+**/target
